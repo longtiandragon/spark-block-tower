@@ -1,0 +1,42 @@
+{
+  "fixed_slots": {
+    "version": "three-slots-20261104-v2-candidate",
+    "camera_verified": false,
+    "ik_verified": false,
+    "collision_verified": false,
+    "vision_verified": false,
+    "slots": [
+      {
+        "command_xyz": [
+          310,
+          100,
+          -43.04
+        ],
+        "measured_xyz": null,
+        "pickup_verified": false,
+        "evidence_id": null
+      },
+      {
+        "command_xyz": [
+          190,
+          235,
+          -43.04
+        ],
+        "measured_xyz": null,
+        "pickup_verified": false,
+        "evidence_id": null
+      },
+      {
+        "command_xyz": [
+          195,
+          110,
+          -43.04
+        ],
+        "measured_xyz": null,
+        "pickup_verified": false,
+        "evidence_id": null
+      }
+    ],
+    "placement_rois": []
+  }
+}

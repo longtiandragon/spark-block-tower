@@ -1,0 +1,96 @@
+import { test, expect, type APIRequestContext } from '@playwright/test'
+
+async function reset(request: APIRequestContext) {
+  const current=await (await request.get('/api/state')).json()
+  await request.post('/api/control',{data:{action:current.phase==='estop'?'clear_estop':'reset',expected_session_id:current.session_id,expected_revision:current.revision}})
+  await request.post('/api/config',{data:{mode:'demo',speech_target:'off',players:3,green_min:1,green_max:1,red_seconds:20,settle_seconds:.6,game_seconds:120,hold_seconds:.2,auto_eliminate:false}})
+}
+test.beforeEach(async({request})=>reset(request))
+test.afterEach(async({request})=>reset(request))
+
+test('cached spoken cues complete before judging and pause cancels playback', async({page,request})=>{
+  const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message))
+  await page.goto('/')
+  await expect(page.getByRole('button',{name:'开始比赛'})).toBeEnabled()
+  await page.getByRole('button',{name:'比赛设置',exact:true}).click()
+  await page.getByLabel('播放端',{exact:true}).selectOption('browser')
+  await page.getByRole('button',{name:'保存比赛设置'}).click()
+  await page.getByRole('link',{name:'数字孪生',exact:true}).click()
+  await page.getByRole('button',{name:'测试播放',exact:true}).click()
+  await expect.poll(async()=> (await (await request.get('/api/state')).json()).speech?.status,{timeout:15000}).toBe('done')
+  await page.getByRole('link',{name:'比赛现场',exact:true}).click()
+  await page.getByRole('button',{name:'开始比赛'}).click()
+  await expect.poll(async()=> (await (await request.get('/api/state')).json()).phase,{timeout:20000}).toBe('red')
+  await page.getByRole('button',{name:'暂停比赛'}).click()
+  await expect(page.getByRole('heading',{name:'中场暂停'})).toBeVisible()
+  await page.getByRole('link',{name:'数字孪生',exact:true}).click()
+  await page.locator('.control-room').screenshot({path:'../test-results/upgrade-twin-audio.png'})
+  expect(errors).toEqual([])
+})
+
+test('a browser without audio permission cannot advance past the cue',async({page,request})=>{
+  await request.post('/api/config',{data:{speech_target:'browser'}})
+  await page.goto('/')
+  await page.getByRole('link',{name:'比赛现场',exact:true}).click()
+  await page.getByRole('button',{name:'开始比赛'}).click()
+  const start=await (await request.get('/api/state')).json()
+  await page.waitForTimeout(4000)
+  expect((await (await request.get('/api/state')).json()).phase).toBe('countdown')
+  await page.getByRole('button',{name:'停止',exact:true}).click()
+  await expect(page.getByRole('heading',{name:'已停止运行'})).toBeVisible()
+  const old=await request.post('/api/speech/ack',{data:{speech_id:start.speech.id,session_id:start.session_id,owner:'old-browser-owner',status:'done'}})
+  expect(old.status()).toBe(409)
+})
+
+test('twin and local evidence explanation remain useful without a cloud model',async({page,request})=>{
+  await page.goto('/')
+  await page.getByRole('link',{name:'比赛现场',exact:true}).click()
+  await page.getByRole('button',{name:'开始比赛'}).click()
+  await expect.poll(async()=>(await (await request.get('/api/state')).json()).phase,{timeout:15000}).toBe('red')
+  await request.post('/api/control',{data:{action:'demo_move',player_id:1}})
+  await page.getByRole('link',{name:'证据复核',exact:true}).click()
+  await expect(page.getByRole('button',{name:'让裁判助手解释这条记录'})).toBeVisible()
+  await page.getByRole('button',{name:'让裁判助手解释这条记录'}).click()
+  await page.getByRole('button',{name:'查看事实',exact:true}).click()
+  await expect(page.locator('.assistant-answer')).toContainText('待人工复核')
+  await expect(page.locator('.assistant-answer')).toContainText('非大模型回答')
+  await page.screenshot({path:'../test-results/upgrade-assistant-answer.png',fullPage:true})
+  await page.getByRole('link',{name:'数字孪生',exact:true}).click()
+  await page.getByRole('button',{name:'1 号赛道',exact:true}).click()
+  await expect(page.locator('.lane-detail')).toContainText('动作分数')
+  await page.locator('.control-room').screenshot({path:'../test-results/upgrade-twin-assistant.png'})
+  await page.setViewportSize({width:390,height:844})
+  await page.locator('.control-room').screenshot({path:'../test-results/upgrade-mobile.png'})
+  const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1)
+  expect(overflow).toBe(false)
+})
+
+test('two enabled windows play one copy and emergency stop interrupts an active cue',async({page,context,request})=>{
+  await request.post('/api/config',{data:{speech_target:'browser'}})
+  await context.addInitScript(()=>{
+    const stats={starts:0,stops:0};(window as any).__audioStats=stats
+    const start=AudioBufferSourceNode.prototype.start, stop=AudioBufferSourceNode.prototype.stop
+    AudioBufferSourceNode.prototype.start=function(...args: Parameters<typeof start>){stats.starts++;return start.apply(this,args)}
+    AudioBufferSourceNode.prototype.stop=function(...args: Parameters<typeof stop>){stats.stops++;return stop.apply(this,args)}
+  })
+  const second=await context.newPage()
+  await page.goto('/');await second.goto('/')
+  await page.getByRole('link',{name:'数字孪生',exact:true}).click()
+  await second.getByRole('link',{name:'数字孪生',exact:true}).click()
+  await page.getByRole('button',{name:'启用本页声音',exact:true}).click()
+  await second.getByRole('button',{name:'启用本页声音',exact:true}).click()
+  await request.post('/api/speech/test',{data:{}})
+  await expect.poll(async()=>(await (await request.get('/api/state')).json()).speech?.status,{timeout:12000}).toBe('done')
+  const starts=await page.evaluate(()=>(window as any).__audioStats.starts)+await second.evaluate(()=>(window as any).__audioStats.starts)
+  expect(starts).toBe(1)
+  await page.getByRole('link',{name:'比赛现场',exact:true}).click()
+  await page.getByRole('button',{name:'开始比赛'}).click()
+  await expect.poll(async()=>(await (await request.get('/api/state')).json()).speech?.status).toBe('playing')
+  const old=(await (await request.get('/api/state')).json()).speech
+  await page.getByRole('button',{name:'停止',exact:true}).click()
+  await expect.poll(async()=> await page.evaluate(()=>(window as any).__audioStats.stops)+await second.evaluate(()=>(window as any).__audioStats.stops)).toBeGreaterThan(0)
+  await page.waitForTimeout(4000)
+  expect((await (await request.get('/api/state')).json()).phase).toBe('estop')
+  expect((await request.post('/api/speech/ack',{data:{speech_id:old.id,session_id:old.session_id,status:'done',owner:old.owner.split(':').slice(1).join(':')}})).status()).toBe(409)
+  await second.close()
+})

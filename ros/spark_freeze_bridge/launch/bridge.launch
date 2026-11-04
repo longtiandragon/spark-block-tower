@@ -1,0 +1,27 @@
+<launch>
+  <arg name="backend_url" default="http://127.0.0.1:8765"/>
+  <arg name="dry_run" default="true"/>
+  <arg name="cmd_vel_topic" default="/cmd_vel"/>
+  <arg name="odom_topic" default="/odom"/>
+  <arg name="scan_topic" default="/scan"/>
+  <!-- This is a configurable candidate, not a verified SPARK topic. -->
+  <arg name="camera_topic" default="/camera/color/image_raw"/>
+  <arg name="min_clearance" default="0.45"/>
+  <arg name="max_speed" default="0.3"/>
+  <arg name="frame_rate" default="5.0"/>
+  <arg name="audio_enabled" default="false"/>
+  <arg name="audio_device" default=""/>
+  <node pkg="spark_freeze_bridge" type="freeze_bridge_node.py" name="spark_freeze_bridge" output="screen" required="true">
+    <param name="backend_url" value="$(arg backend_url)"/>
+    <param name="dry_run" value="$(arg dry_run)" type="bool"/>
+    <param name="cmd_vel_topic" value="$(arg cmd_vel_topic)"/>
+    <param name="odom_topic" value="$(arg odom_topic)"/>
+    <param name="scan_topic" value="$(arg scan_topic)"/>
+    <param name="camera_topic" value="$(arg camera_topic)"/>
+    <param name="min_clearance" value="$(arg min_clearance)" type="double"/>
+    <param name="max_speed" value="$(arg max_speed)" type="double"/>
+    <param name="frame_rate" value="$(arg frame_rate)" type="double"/>
+    <param name="audio_enabled" value="$(arg audio_enabled)" type="bool"/>
+    <param name="audio_device" value="$(arg audio_device)"/>
+  </node>
+</launch>

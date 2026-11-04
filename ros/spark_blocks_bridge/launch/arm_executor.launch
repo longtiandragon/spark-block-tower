@@ -1,0 +1,13 @@
+<launch>
+  <!-- Opt-in only. blocks.launch never starts or resets a serial controller. -->
+  <arg name="enabled" default="false"/>
+  <arg name="device" default="/dev/uarm"/>
+  <arg name="site" default="$(find spark_blocks_bridge)/config/site.example.yaml"/>
+  <group if="$(arg enabled)">
+    <node pkg="spark_blocks_bridge" type="swiftpro_executor_node.py" name="spark_blocks_arm" output="screen" required="true">
+      <rosparam command="load" file="$(arg site)"/>
+      <param name="enabled" value="$(arg enabled)" type="bool"/>
+      <param name="device" value="$(arg device)"/>
+    </node>
+  </group>
+</launch>

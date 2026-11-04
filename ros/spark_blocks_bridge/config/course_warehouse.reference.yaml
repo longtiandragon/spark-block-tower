@@ -1,0 +1,16 @@
+# Course chapter 638478 + installed Astra grasp_pro_new.py.
+# User confirmed these are the course's 10x10x10 cm blue blocks.
+# Merge into the site configuration; navigation, slots and stop setup are
+# separate and are not implicitly commissioned by selecting this profile.
+course_profile: warehouse_10cm
+block_size_mm: [100, 100, 100]
+verification_mode: operator  # course has no vacuum/pressure prerequisite
+color_hsv_file: ~/color_block_HSV.txt
+rest: [120, 0, 35]
+carry: [250, 0, 150]
+# Profile supplies source approach_z=20, pickup_z=-50 unless specified.
+# Tested site overrides for the current station can supply pickup_z=-45.25
+# and pickup_xy_offset_mm=[5,0]; these are separate from the reference values.
+# Course first-layer release reference: [200,0,-40]. Upper layers require
+# explicit reachable approach/transfer paths; block size alone cannot prove them.
+commissioned: false

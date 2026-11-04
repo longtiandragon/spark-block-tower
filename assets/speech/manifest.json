@@ -1,0 +1,48 @@
+{
+  "provider": "edge-tts (online synthesis, offline playback)",
+  "voice": "zh-CN-YunxiNeural",
+  "clips": {
+    "ready": {
+      "filename": "ready-70320bebf2f12693.wav",
+      "sha256": "70320bebf2f12693c8851a59989dc229f91d3d5ce9e7344af3eaf993960595fc",
+      "text": "各位选手请准备，站好自己的赛道。",
+      "duration": 3.648
+    },
+    "count": {
+      "filename": "count-07c2add830a66677.wav",
+      "sha256": "07c2add830a666771d79f5f675b7b7c1031d020feda208ab9a6da2e89f1f701f",
+      "text": "一，二，三。",
+      "duration": 2.712
+    },
+    "freeze": {
+      "filename": "freeze-b00a4ba1dcdb94fe.wav",
+      "sha256": "b00a4ba1dcdb94fe5e95f2062848f039ff96c3094affb46f06a48faea997bca0",
+      "text": "木头人！请保持静止。",
+      "duration": 3.312
+    },
+    "paused": {
+      "filename": "paused-d22735e6b02e7f36.wav",
+      "sha256": "d22735e6b02e7f36c960bfee89b6aeea39ffaa2214e4ea938eb84e691fac2e79",
+      "text": "比赛暂停，请等待裁判。",
+      "duration": 3.216
+    },
+    "finished": {
+      "filename": "finished-147c9bc227f59c7b.wav",
+      "sha256": "147c9bc227f59c7b1f8a00b34e953d9004001633c19a73ffcaf2168497d2060a",
+      "text": "本场比赛结束，请查看比赛记录。",
+      "duration": 3.696
+    },
+    "estop": {
+      "filename": "estop-8fb9d9c1179c40c0.wav",
+      "sha256": "8fb9d9c1179c40c07c7e8fc0087b8725024030bf2bccedf0954d845634ab4d3e",
+      "text": "已紧急停止，请勿靠近机器人。",
+      "duration": 3.648
+    },
+    "test": {
+      "filename": "test-d54fbb855c92a915.wav",
+      "sha256": "d54fbb855c92a91533449120fb7cef18e390ed2d0940b54d1c649bd3132557b8",
+      "text": "我是 SPARK 裁判。语音播放测试完成。",
+      "duration": 4.8
+    }
+  }
+}

@@ -1,0 +1,13 @@
+<launch>
+  <arg name="backend_url" default="http://127.0.0.1:8768"/>
+  <arg name="dry_run" default="true"/>
+  <arg name="site" default="$(find spark_blocks_bridge)/config/site.example.yaml"/>
+  <node pkg="spark_blocks_bridge" type="blocks_bridge_node.py" name="spark_blocks" output="screen" required="true">
+    <rosparam command="load" file="$(arg site)"/>
+    <param name="backend_url" value="$(arg backend_url)"/>
+    <param name="dry_run" value="$(arg dry_run)" type="bool"/>
+    <param name="camera_topic" value="/camera/rgb/image_raw"/>
+    <param name="scan_topic" value="/scan"/>
+    <param name="odom_topic" value="/odom"/>
+  </node>
+</launch>

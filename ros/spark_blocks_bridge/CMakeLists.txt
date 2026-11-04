@@ -1,0 +1,7 @@
+cmake_minimum_required(VERSION 3.0.2)
+project(spark_blocks_bridge)
+find_package(catkin REQUIRED COMPONENTS rospy rosgraph actionlib geometry_msgs nav_msgs sensor_msgs std_msgs std_srvs message_filters tf cv_bridge move_base_msgs spark_carry_object)
+catkin_python_setup()
+catkin_package()
+catkin_install_python(PROGRAMS scripts/swiftpro_executor_node.py scripts/fixed_tower_agent.py scripts/blocks_bridge_node.py scripts/derive_heights.py scripts/measure_block_height.py DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+install(DIRECTORY launch config DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})

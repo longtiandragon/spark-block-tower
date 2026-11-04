@@ -1,0 +1,63 @@
+# Do not reuse warehouse example heights. All coordinates must be measured for
+# the large blue blocks, Astra camera and the actual tower base.
+commissioned: false
+operation_mode: mobile  # stationary skips move_base/map TF; still requires fresh real odometry and scan
+# Measured TCP feedback from a verified driver, never cached command targets.
+# See docs/ARM_FEEDBACK_CONTRACT.md before enabling real operation.
+arm_feedback:
+  topic: /spark_blocks/measured_arm
+  physically_verified: false
+  max_age_s: 0.3
+  tolerance_mm: 0.8
+  timeout_s: 120.0
+arm_stop_verified: false
+arm_stop_service: ''  # std_srvs/Trigger: halt arm motion, KEEP suction unchanged
+# operator: fixed calibrated heights, then one result confirmation per block.
+# sensor: fresh physically verified vacuum-switch/3D evidence before lifting;
+# no confirmation means stop and retain suction, never automatic deeper retries.
+verification_mode: operator
+# grasp_monitor:
+#   topic: /spark_blocks/measured_grasp
+#   physically_verified: false
+#   max_age_s: 0.3
+#   acquire_timeout_s: 2.0
+# Optional one-time height model, arm millimetres. Supplying it REQUIRES
+# verified=true and measured support_surface_z_mm on each source and slot,
+# plus xy_mm on each slot. The user-confirmed course block height is 100 mm;
+# TCP/cup and support-surface coordinates remain separate quantities.
+# To reuse the original course fixed pickup heights instead, use
+# course_profile: warehouse_10cm (see course_warehouse.reference.yaml).
+# height_model:
+#   verified: false
+#   block_height_mm: MEASURE
+#   tool_to_cup_z_mm: MEASURE  # TCP Z minus cup-mouth Z
+#   compression_mm: MEASURE   # 0..2, verified compliant cup compression
+#   clearance_mm: MEASURE     # 5..150 above each contacted block top
+image_size: [640, 480]
+# Omit unmeasured tolerances: ROS 1 XML-RPC cannot load YAML null values.
+# Uncomment and replace only after measuring; validation rejects missing keys.
+# dock_xy_tolerance_m: MEASURE   # no greater than 0.025 m
+# dock_yaw_tolerance_rad: MEASURE # no greater than 0.035 rad
+pixel_to_arm: []       # four coefficients from verified ~/thefile.txt, at this resolution/height
+limits: []             # [[xmin,xmax],[ymin,ymax],[zmin,zmax]], arm millimetres
+rest: []               # collision-free observation pose
+carry: []              # verified travel pose WITH large block attached
+sources: []            # each has map_pose: [x_m,y_m,yaw_rad], roi: [0,0,1,1], approach_z, pickup_z
+# Three-layer tower at centre. Each entry needs measured above/down XYZ in mm.
+# Down is suction-cup position, NOT simply block_height * layer.
+# Every upper layer requires all lower layers; down Z must strictly increase.
+# This structural check does not verify block clearance or physical stability.
+slots: {}
+# slots:
+#   '1-1-0': {above: [MEASURE, MEASURE, MEASURE], down: [MEASURE, MEASURE, MEASURE], transfer: [], retreat: []}
+#   '1-1-1': {above: [MEASURE, MEASURE, MEASURE], down: [MEASURE, MEASURE, MEASURE], transfer: [], retreat: []}
+#   '1-1-2': {above: [MEASURE, MEASURE, MEASURE], down: [MEASURE, MEASURE, MEASURE], transfer: [], retreat: []}
+# Empty waypoint lists assert a measured collision-free direct path; otherwise
+# add intermediate XYZ poses for carry->above and above->rest around the tower.
+
+# Optional per-slot measured support reference (only after physical confirmation):
+# release_reference:
+#   verified: false
+#   command_xyz_mm: [MEASURE, MEASURE, MEASURE]  # must equal that slot's down exactly
+#   measured_xyz_mm: [MEASURE, MEASURE, MEASURE] # <=3 mm from nominal; never changes G0
+# Protocol 2 rechecks support immediately before release: Z<=0.8 mm, XY<=2 mm.
