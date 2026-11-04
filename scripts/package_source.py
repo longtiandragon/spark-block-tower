@@ -11,7 +11,7 @@ def package():
     output.parent.mkdir(exist_ok=True)
     files = []
     for directory in ["backend/spark_freeze", "frontend/src", "frontend/public", "frontend/e2e",
-                      "ros", "scripts", "tests", "docs", "assets/speech"]:
+                      "ros", "robot_console", "tools", "config", "scripts", "tests", "docs", "assets/speech"]:
         files.extend(p for p in (ROOT/directory).rglob('*') if p.is_file()
                      and '__pycache__' not in p.parts and p.suffix not in {'.pyc','.pyo','.tmp'})
     for name in ["README.md", "pyproject.toml", "uv.lock", "Setup.ps1", "Start.ps1", "start.cmd",

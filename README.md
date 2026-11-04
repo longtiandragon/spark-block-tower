@@ -43,7 +43,7 @@ npm run build
 npm run test:e2e
 ```
 
-整理时工作区 Python 回归为 480 passed、11 subtests passed，另有一条 Starlette/httpx 弃用提醒。软件测试使用模拟输入，不代表机器人实体可靠性。
+整理时工作区 Python 回归为 480 passed、11 subtests passed。公开快照复核为 479 passed、1 skipped、11 subtests passed；跳过项依赖未分发的历史相机照片。前端类型检查与生产构建通过，16项浏览器流程测试通过。另有一条 Starlette/httpx 弃用提醒及Vite打包体积提示。软件测试使用模拟输入，不代表机器人实体可靠性。
 
 ## 目录
 
